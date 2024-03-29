@@ -23,12 +23,15 @@ from lib import dirs
 
 # import gui modules
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFileDialog, QLabel
+from PyQt5.QtGui import QIcon
 from PyQt5uic import loadUi
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.setWindowIcon(QIcon("./_internal/media-download.ico"))
+
         # define threads handlers attributes
         # TODO: collect them in a dictionary attribute
         self.video_handle_thread = None
@@ -47,11 +50,11 @@ class MainWindow(QMainWindow):
         self.playlist_download_window = None
 
         self.reset_gui()
-        self.statusBar().showMessage("Developed and Built by Ahmed Hatem")
 
     # specific for gui actions
     def reset_gui(self, playlist_tab=False):
         loadUi("./gui/main window", self)
+        self.statusBar().showMessage("Developed and Built by Ahmed Hatem")
 
         self.current_video = {}
         self.current_playlist = {}
@@ -92,7 +95,7 @@ class MainWindow(QMainWindow):
         self.video_get_b.setEnabled(False)
         self.video_url.setEnabled(False)
         self.playlist_get_b.setEnabled(False)
-        self.playlist_reset_b.setEnabled(False)
+        # self.playlist_reset_b.setEnabled(False)
         self.playlist_url.setEnabled(False)
 
     def key_bindings(self):
@@ -174,7 +177,8 @@ class MainWindow(QMainWindow):
                                                        directory=current_location if current_location else
                                                        self.current_video["stream_file_location"]
                                                        )
-        self.video_save_location.setText(file_location)
+        if file_location:
+            self.video_save_location.setText(file_location)
 
     def show_streams(self, streams_type: str):
         # handle both video and audio streams of the current video
@@ -334,7 +338,9 @@ class MainWindow(QMainWindow):
         playlist_location = QFileDialog.getExistingDirectory(parent=self,
                                                              caption="Choose Location",
                                                              directory=self.current_playlist["playlist_location"])
-        self.playlist_save_location.setText(playlist_location)
+
+        if playlist_location:
+            self.playlist_save_location.setText(playlist_location)
 
     def change_playlist_type(self, streams_type: str):
         if not self.current_playlist.get("size"):

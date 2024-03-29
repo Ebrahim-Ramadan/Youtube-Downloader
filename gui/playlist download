@@ -30,7 +30,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../video-download.ico</normaloff>../../../video-download.ico</iconset>
+    <normaloff>../_internal/media-download.ico</normaloff>../_internal/media-download.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QLabel {
@@ -209,7 +209,7 @@ font-size: 17px;
       <item row="0" column="0" colspan="4">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_3">
          <attribute name="title">

@@ -1,6 +1,7 @@
 from http.client import IncompleteRead
 from urllib.error import URLError
-from os.path import basename, dirname, getsize, join
+from os.path import basename, dirname, getsize, join, exists
+from os import remove
 from time import sleep
 from traceback import format_exc
 
@@ -219,6 +220,7 @@ class SelectStreamHandleThread(QThread):
 
     def run(self) -> None:
         try:
+            # print(self.current_task)
             if self.current_task["type"] == "video":
                 streams = self.video_object.streams.filter(progressive=True)
             else:
@@ -230,6 +232,7 @@ class SelectStreamHandleThread(QThread):
                     stream = streams[-2]
             else:
                 stream = streams[0]
+            # print(stream)
 
             if self.prefix:
                 filename = f"{self.prefix} - {stream.default_filename}"
@@ -386,3 +389,28 @@ class MergeStreamsHandle(QThread):
                 file.write(format_exc())
                 file.close()
             self.on_error.emit()
+
+
+class RemoveUnmergedHandle(QThread):
+    on_error = pyqtSignal(str)
+
+    def __init__(self, clip_location):
+        super(RemoveUnmergedHandle, self).__init__()
+        self.clip_location = clip_location
+
+    def run(self) -> None:
+        counter = 0
+        while True:
+            try:
+                if exists(self.clip_location):
+                    remove(self.clip_location)
+                if exists(self.clip_location + " (audio)"):
+                    remove(self.clip_location + " (audio)")
+                break
+            except Exception as e:
+                print(e)
+                sleep(1)
+                counter += 1
+                if counter >= 5:
+                    self.on_error.emit(self.clip_location)
+                    break

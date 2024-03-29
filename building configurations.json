@@ -100,6 +100,14 @@
   {
    "optionDest": "hiddenimports",
    "value": "pkg_resources"
+  },
+  {
+   "optionDest": "datas",
+   "value": "E:/Pro/Work/downloader/new/codes/_internal/icon.ico;."
+  },
+  {
+   "optionDest": "datas",
+   "value": "E:/Pro/Work/downloader/new/codes/_internal/init.json;."
   }
  ],
  "nonPyinstallerOptions": {

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QComboBox, QPushButton
 from PyQt5uic import loadUi
-from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtGui import QCloseEvent, QIcon
 
 from lib.load_piximage import load_piximage_from_url
 from pytube.streams import Stream
@@ -16,6 +16,7 @@ from sys import exit
 class PlaylistDownloadWindow(QMainWindow):
     def __init__(self, download_data: dict, customized: bool, parent):
         super(PlaylistDownloadWindow, self).__init__()
+        self.setWindowIcon(QIcon("./_internal/media-download.ico"))
         loadUi("./gui/playlist download", self)
         self.download_data = download_data
         self.videos_widgets = download_data["videos_data"]
@@ -72,7 +73,7 @@ class PlaylistDownloadWindow(QMainWindow):
                     subtitle_index = customized_data["subtitle_index"]
                 if customized_data["include"]:
                     stream_type = customized_data["stream_type"]
-                    quality = ["quality"]
+                    quality = customized_data["quality"]
                 else:
                     # neglects the unchecked videos
                     continue

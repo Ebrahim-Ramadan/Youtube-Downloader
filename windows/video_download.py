@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from PyQt5.uic import loadUi
-from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtGui import QCloseEvent, QIcon
 
 from lib.load_piximage import load_piximage_from_url
 from threading import Thread
 from pytube import Stream
 from pytube.helpers import safe_filename
 
-from threads.object_handle import VideoDownloadHandleThread, MergeStreamsHandle
+from threads.object_handle import VideoDownloadHandleThread, MergeStreamsHandle, RemoveUnmergedHandle
 
 from filesize import naturalsize
 from os.path import basename, dirname, join, exists
@@ -20,6 +20,7 @@ from lib.subtitle import Subtitle
 class VideoDownloadWindow(QMainWindow):
     def __init__(self, download_data: dict, parent):
         super(VideoDownloadWindow, self).__init__()
+        self.setWindowIcon(QIcon("./_internal/media-download.ico"))
         loadUi("./gui/video download", self)
         self.download_data = download_data
         self.display_data()
@@ -30,6 +31,7 @@ class VideoDownloadWindow(QMainWindow):
         # declare the window manipulators
         self.download_handle = None
         self.merge_handle = None
+        self.remove_unmerged_handle = None
         self.tasks = {}
         self.current_task = 0
         self.pause = False
@@ -175,7 +177,6 @@ class VideoDownloadWindow(QMainWindow):
         self.merge_handle.merging_stat.connect(self.display_merging_stat)
         self.merge_handle.show_status.connect(self.show_merging_status)
         self.merge_handle.finished.connect(lambda: self.remove_clips(clip_location))
-        self.merge_handle.finished.connect(self.next_task)
         self.merge_handle.on_error.connect(self.on_error)
         self.merge_handle.start()
         self.statusBar().showMessage("Performing merging tasks .. DO NOT CLOSE THE PROGRAM!")
@@ -193,10 +194,11 @@ class VideoDownloadWindow(QMainWindow):
             self.statusBar().showMessage("Couldn't download subtitle!")
 
     def remove_clips(self, clip_location):
-        if exists(clip_location):
-            remove(clip_location)
-        if exists(clip_location + " (audio)"):
-            remove(clip_location + " (audio)")
+        self.remove_unmerged_handle = RemoveUnmergedHandle(clip_location)
+        self.remove_unmerged_handle.finished.connect(self.next_task)
+        self.remove_unmerged_handle.on_error.connect(self.on_remove_unmerged_error)
+        self.remove_unmerged_handle.start()
+
 
     def pause_resume(self):
         if self.pause:
@@ -250,6 +252,15 @@ class VideoDownloadWindow(QMainWindow):
             self.manage_tasks()
         else:
             exit()
+
+    def on_remove_unmerged_error(self, clip_location):
+        msg = QMessageBox(parent=self)
+        msg.setWindowTitle("Error!")
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText(f"Couldn't delete\n{clip_location}\ntry delete it")
+        msg.addButton("Exit", QMessageBox.RejectRole)
+        btn = msg.exec()
+
 
     def prepare_another(self):
         self.hide()

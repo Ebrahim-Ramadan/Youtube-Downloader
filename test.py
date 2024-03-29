@@ -1,15 +1,19 @@
 # add additional lib to path
 import sys
+from os import unlink
 
 sys.path.append("lib")
 sys.path.append("lib/pytube")
 from pytube import Playlist, YouTube, Stream
 from lib.filesize import naturalsize
 
-video = YouTube("https://www.youtube.com/watch?v=HFWQdGn5DaU")
+# video = YouTube("https://www.youtube.com/watch?v=HFWQdGn5DaU")
 
-streams = video.streams.filter(only_video=True, subtype="mp4")
-print(streams)
+# streams = video.streams.filter(only_video=True, subtype="mp4")
+
+unlink("اسحاق نيتيرو الأقوى anime انمي gon hunterxhunter [360p].mp4")
+
+
 # subtitle_object = Subtitle(video_id=id)
 # print(subtitle_object.get_subtitles())
 # print(subtitle_object.generate_srt_format(27))

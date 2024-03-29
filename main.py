@@ -49,10 +49,10 @@ from json import load
 
 def show_message_box(text, title, link=None, error=False):
     app = QApplication([])
-    apply_stylesheet(app, "dark_teal.xml")
+    apply_stylesheet(app, "dark_cyan.xml")
 
     msg_box = QMessageBox()
-    msg_box.setWindowIcon(QIcon("./_internal/icon.ico"))
+    msg_box.setWindowIcon(QIcon("./_internal/media-download.ico"))
     msg_box.setStyleSheet(msg_box.styleSheet() + "font-size: 15px;")
     msg_box.setText(text)
     msg_box.setWindowTitle(title)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     # define the app
     app = QApplication([])
-    apply_stylesheet(app, "dark_teal.xml")
+    apply_stylesheet(app, "dark_cyan.xml")
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

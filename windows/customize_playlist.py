@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QComboBox
 from PyQt5uic import loadUi
+from PyQt5.QtGui import QIcon
 
 
 class CustomizingWindow(QDialog):
@@ -8,6 +9,7 @@ class CustomizingWindow(QDialog):
 
     def __init__(self, playlist_title: str, videos_widgets: dict, parent=None):
         super(CustomizingWindow, self).__init__(parent)
+        self.setWindowIcon(QIcon("./_internal/media-download.ico"))
         loadUi("./gui/playlist customizing window", self)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowTitle(playlist_title)

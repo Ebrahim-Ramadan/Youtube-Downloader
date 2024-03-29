@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../video-download.ico</normaloff>../../../video-download.ico</iconset>
+    <normaloff>../_internal/media-download.ico</normaloff>../_internal/media-download.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QLabel {
