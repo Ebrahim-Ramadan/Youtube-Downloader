@@ -19,7 +19,7 @@
   },
   {
    "optionDest": "icon_file",
-   "value": "E:/Pro/Work/downloader/video-download.ico"
+   "value": "E:/Pro/Work/downloader/new/codes/_internal/media-download.ico"
   },
   {
    "optionDest": "name",
@@ -103,11 +103,11 @@
   },
   {
    "optionDest": "datas",
-   "value": "E:/Pro/Work/downloader/new/codes/_internal/icon.ico;."
+   "value": "E:/Pro/Work/downloader/new/codes/_internal/init.json;."
   },
   {
    "optionDest": "datas",
-   "value": "E:/Pro/Work/downloader/new/codes/_internal/init.json;."
+   "value": "E:/Pro/Work/downloader/new/codes/_internal/media-download.ico;."
   }
  ],
  "nonPyinstallerOptions": {
