@@ -23,8 +23,9 @@ from lib import dirs
 
 # import gui modules
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFileDialog, QLabel
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.uic import loadUi
+from PyQt5.QtCore import Qt, QUrl
 
 
 class MainWindow(QMainWindow):
@@ -54,7 +55,7 @@ class MainWindow(QMainWindow):
     # specific for gui actions
     def reset_gui(self, playlist_tab=False):
         loadUi("./gui/main window", self)
-        self.statusBar().showMessage("Developed and Built by Ahmed Hatem")
+        # self.statusBar().showMessage("Developed and Built by Ahmed Hatem")
 
         self.current_video = {}
         self.current_playlist = {}
@@ -90,6 +91,12 @@ class MainWindow(QMainWindow):
             self.tabs.setCurrentIndex(1)
 
         self.key_bindings()
+        clickable_label = QLabel(
+            "Developed and Built by <a style='color: #3A78F3;' href='https://github.com/dev-ahmed-hatem'>Ahmed Hatem</a>")
+        clickable_label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        clickable_label.setOpenExternalLinks(True)
+        clickable_label.setAlignment(Qt.AlignCenter)
+        self.statusBar().addPermanentWidget(clickable_label)
 
     def disable_gui(self):
         self.video_get_b.setEnabled(False)
@@ -168,19 +175,21 @@ class MainWindow(QMainWindow):
         self.video_download_b.setEnabled(True)
 
     def define_stream_filename(self):
-        # especially with the filename
         current = self.video_quality.currentIndex()
         if current == -1:
             return
+
         stream_type = "video" if self.video_radio.isChecked() else "audio"
-        stream_filename = self.current_video["resolved_streams"][current][
-            f"{stream_type}_stream_object"].default_filename
+        stream_filename = self.current_video["resolved_streams"][
+            current][f"{stream_type}_stream_object"].default_filename
+
         if stream_type == "video":
             self.current_video["stream_file_location"] = path.join(
                 dirs.videos_dir, stream_filename)
             self.video_save_location.setText(
                 self.current_video["stream_file_location"])
         else:
+            # Change the default save location to "Downloads\\\\YouTube Downloads\\\\Audios" for audio streams
             self.current_video["stream_file_location"] = path.join(
                 dirs.audios_dir, stream_filename)
             self.video_save_location.setText(
