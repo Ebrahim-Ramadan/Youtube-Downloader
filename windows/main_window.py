@@ -24,7 +24,7 @@ from lib import dirs
 # import gui modules
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFileDialog, QLabel
 from PyQt5.QtGui import QIcon
-from PyQt5uic import loadUi
+from PyQt5.uic import loadUi
 
 
 class MainWindow(QMainWindow):
@@ -106,17 +106,23 @@ class MainWindow(QMainWindow):
         self.audio_radio.clicked.connect(lambda: self.show_streams("audio"))
         self.video_reset_b.clicked.connect(self.reset_gui)
         self.video_download_b.clicked.connect(self.fetch_video_download_data)
+        self.video_url.returnPressed.connect(self.get_video)
 
         # define key bindings for playlist tab
         self.playlist_get_b.clicked.connect(self.get_playlist)
         self.playlist_browse_b.clicked.connect(self.get_playlist_save_location)
-        self.playlist_videos_radio.clicked.connect(lambda: self.change_playlist_type("videos"))
-        self.playlist_audios_radio.clicked.connect(lambda: self.change_playlist_type("audios"))
-        self.video_quality.currentIndexChanged.connect(self.define_stream_filename)
-        self.playlist_quality.currentIndexChanged.connect(self.change_playlist_quality)
+        self.playlist_videos_radio.clicked.connect(
+            lambda: self.change_playlist_type("videos"))
+        self.playlist_audios_radio.clicked.connect(
+            lambda: self.change_playlist_type("audios"))
+        self.video_quality.currentIndexChanged.connect(
+            self.define_stream_filename)
+        self.playlist_quality.currentIndexChanged.connect(
+            self.change_playlist_quality)
         self.playlist_reset_b.clicked.connect(lambda: self.reset_gui(True))
         self.playlist_customize_b.clicked.connect(self.customize_playlist)
-        self.playlist_download_b.clicked.connect(self.fetch_playlist_download_data)
+        self.playlist_download_b.clicked.connect(
+            self.fetch_playlist_download_data)
 
     # specific for video handling
     def get_video(self):
@@ -128,20 +134,26 @@ class MainWindow(QMainWindow):
             self.current_video["video"] = video
 
             # initiate video handle thread
-            self.video_handle_thread = VideoHandleThread(video=video, parent=self)
-            self.video_handle_thread.error.connect(self.receive_message_from_thread)
-            self.video_handle_thread.display_video_data.connect(self.display_video_data)
+            self.video_handle_thread = VideoHandleThread(
+                video=video, parent=self)
+            self.video_handle_thread.error.connect(
+                self.receive_message_from_thread)
+            self.video_handle_thread.display_video_data.connect(
+                self.display_video_data)
             self.video_handle_thread.start()
             self.statusBar().showMessage("Getting video data .. please wait.")
 
             # initiate subtitle handle thread
-            self.subtitle_handle_thread = SubtitleHandleThread(video.video_id, self)
-            self.subtitle_handle_thread.display_subtitles.connect(self.display_subtitles)
+            self.subtitle_handle_thread = SubtitleHandleThread(
+                video.video_id, self)
+            self.subtitle_handle_thread.display_subtitles.connect(
+                self.display_subtitles)
             self.subtitle_handle_thread.start()
 
         except RegexMatchError:
             self.show_message(QMessageBox.Critical, "Invalid URL!")
         except Exception:
+            print('Exception', Exception)
             self.show_message(QMessageBox.Critical, "Unexpected Error!")
 
     def display_video_data(self):
@@ -164,11 +176,15 @@ class MainWindow(QMainWindow):
         stream_filename = self.current_video["resolved_streams"][current][
             f"{stream_type}_stream_object"].default_filename
         if stream_type == "video":
-            self.current_video["stream_file_location"] = path.join(dirs.videos_dir, stream_filename)
-            self.video_save_location.setText(self.current_video["stream_file_location"])
+            self.current_video["stream_file_location"] = path.join(
+                dirs.videos_dir, stream_filename)
+            self.video_save_location.setText(
+                self.current_video["stream_file_location"])
         else:
-            self.current_video["stream_file_location"] = path.join(dirs.audios_dir, stream_filename)
-            self.video_save_location.setText(self.current_video["stream_file_location"])
+            self.current_video["stream_file_location"] = path.join(
+                dirs.audios_dir, stream_filename)
+            self.video_save_location.setText(
+                self.current_video["stream_file_location"])
 
     def get_video_save_location(self):
         current_location = self.video_save_location.text()
@@ -193,8 +209,10 @@ class MainWindow(QMainWindow):
                 }
                 counter += 1
             if dirs.ffmpeg_script():
-                video_streams = self.current_video["streams"].filter(only_video=True, subtype="mp4")
-                audio_streams = self.current_video["streams"].filter(only_audio=True)
+                video_streams = self.current_video["streams"].filter(
+                    only_video=True, subtype="mp4")
+                audio_streams = self.current_video["streams"].filter(
+                    only_audio=True)
                 unmerged = justify_streams(audio_streams, video_streams)
                 for stream in unmerged:
                     vid = unmerged[stream]["video"]
@@ -217,13 +235,17 @@ class MainWindow(QMainWindow):
                 }
                 counter += 1
 
-        self.video_quality.currentIndexChanged.disconnect(self.define_stream_filename)
+        self.video_quality.currentIndexChanged.disconnect(
+            self.define_stream_filename)
         self.video_quality.clear()
         self.current_video["resolved_streams"] = items
         for item in items:
             self.video_quality.addItem(items[item]["display"])
-        self.video_quality.currentIndexChanged.connect(self.define_stream_filename)
-        self.define_stream_filename()
+        self.video_quality.currentIndexChanged.connect(
+            self.define_stream_filename)
+        # Check if the save location is already set, if not, set it to the default location
+        if not self.video_save_location.text():
+            self.define_stream_filename()
 
     def display_subtitles(self):
         self.video_subtitle.addItem("no subtitle")
@@ -236,8 +258,10 @@ class MainWindow(QMainWindow):
         # collect the data selected for the video
         save_location = self.video_save_location.text()
         if save_location == "":
-            self.show_message(QMessageBox.Warning, "Choose save location", False)
+            self.show_message(QMessageBox.Warning,
+                              "Choose save location", False)
             return
+
         download_data = {}
         current_video = self.current_video
         download_data["url"] = self.video_url.text()
@@ -249,6 +273,7 @@ class MainWindow(QMainWindow):
         download_data["length"] = standard_time(current_video["video"].length)
         current_video_selected_stream = current_video["resolved_streams"][quality_index]
         stream_type = current_video_selected_stream["type"]
+
         if stream_type == "video":
             video_stream_object = current_video_selected_stream["video_stream_object"]
             audio_stream_object = None
@@ -257,21 +282,20 @@ class MainWindow(QMainWindow):
         elif stream_type == "unmerged":
             video_stream_object = current_video_selected_stream["video_stream_object"]
             audio_stream_object = current_video_selected_stream["audio_stream_object"]
-            download_data["quality"] = f"video: {video_stream_object.resolution}   " \
-                                       f"   audio: {audio_stream_object.abr}    (unmerged)"
-            download_data["size"] = f"video: {naturalsize(video_stream_object.filesize)}   " \
-                                    f"+   audio: {naturalsize(audio_stream_object.filesize)}"
+            download_data[
+                "quality"] = f"video: {video_stream_object.resolution}    audio: {audio_stream_object.abr}    (unmerged)"
+            download_data["size"] = f"video: {naturalsize(video_stream_object.filesize)}    +   audio: {naturalsize(audio_stream_object.filesize)}"
         else:
             video_stream_object = None
             audio_stream_object = current_video_selected_stream["audio_stream_object"]
             download_data["quality"] = f"{audio_stream_object.abr} (audio)"
             download_data["size"] = naturalsize(audio_stream_object.filesize)
-        download_data["thumbnail"] = current_video["video"].thumbnail_url
-        download_data["subtitle_index"] = subtitle_index - 1 \
-            if subtitle_index != 0 \
-            else "no subtitle"
-        download_data["subtitle_object"] = self.current_video["subtitle_object"]
 
+        download_data["thumbnail"] = current_video["video"].thumbnail_url
+        download_data["subtitle_index"] = subtitle_index - \
+            1 if subtitle_index != 0 else "no subtitle"
+        download_data["subtitle_object"] = current_video.get(
+            "subtitle_object", None)  # Access "subtitle_object" key safely
         download_data["stream_type"] = stream_type
         download_data["video_stream_object"] = video_stream_object
         download_data["audio_stream_object"] = audio_stream_object
@@ -290,9 +314,12 @@ class MainWindow(QMainWindow):
         # initiate playlist handle thread
         self.playlist_handle_thread = PlaylistHandleThread(url, self)
         self.playlist_handle_thread.handle_size = False
-        self.playlist_handle_thread.error.connect(self.receive_message_from_thread)
-        self.playlist_handle_thread.display_playlist_data.connect(self.display_playlist_data)
-        self.playlist_handle_thread.display_playlist_size.connect(self.change_playlist_quality)
+        self.playlist_handle_thread.error.connect(
+            self.receive_message_from_thread)
+        self.playlist_handle_thread.display_playlist_data.connect(
+            self.display_playlist_data)
+        self.playlist_handle_thread.display_playlist_size.connect(
+            self.change_playlist_quality)
         self.playlist_handle_thread.start()
         self.statusBar().showMessage("Getting playlist data .. please wait.")
 
@@ -309,9 +336,11 @@ class MainWindow(QMainWindow):
         self.get_playlist_size()
         self.collect_playlist_videos_data()
         self.statusBar().showMessage("preparing videos to download ..")
-        self.playlist_count.setText(str(self.current_playlist["playlist_count"]))
+        self.playlist_count.setText(
+            str(self.current_playlist["playlist_count"]))
         self.define_playlist_filename()
-        self.playlist_save_location.setText(self.current_playlist["playlist_location"])
+        self.playlist_save_location.setText(
+            self.current_playlist["playlist_location"])
         self.playlist_browse_b.setEnabled(True)
         self.playlist_type_group.setEnabled(True)
         self.playlist_videos_radio.setChecked(True)
@@ -331,8 +360,10 @@ class MainWindow(QMainWindow):
         self.approx_size.setText(naturalsize(size))
 
     def define_playlist_filename(self):
-        playlist_dirname = safe_filename(self.current_playlist["playlist_title"])
-        self.current_playlist["playlist_location"] = path.join(dirs.playlists_dir, playlist_dirname)
+        playlist_dirname = safe_filename(
+            self.current_playlist["playlist_title"])
+        self.current_playlist["playlist_location"] = path.join(
+            dirs.playlists_dir, playlist_dirname)
 
     def get_playlist_save_location(self):
         playlist_location = QFileDialog.getExistingDirectory(parent=self,
@@ -357,24 +388,30 @@ class MainWindow(QMainWindow):
             combo_box = self.playlist_quality
             mul_factor = f"{qualities[combo_box.currentIndex()]}" \
                          f" {'progressive' if self.playlist_videos_radio.isChecked() else 'audio'}"
-            self.display_playlist_size(self.current_playlist["playlist_mul_factor"][mul_factor])
+            self.display_playlist_size(
+                self.current_playlist["playlist_mul_factor"][mul_factor])
         except Exception as e:
             print(e)
 
     def collect_playlist_videos_data(self):
-        self.customizing_handle_thread = CustomizingHandleThread(self.current_playlist["playlist"], self)
-        self.customizing_handle_thread.success.connect(self.prepare_video_templates)
-        self.customizing_handle_thread.success.connect(self.collect_playlist_videos_thumbnails)
+        self.customizing_handle_thread = CustomizingHandleThread(
+            self.current_playlist["playlist"], self)
+        self.customizing_handle_thread.success.connect(
+            self.prepare_video_templates)
+        self.customizing_handle_thread.success.connect(
+            self.collect_playlist_videos_thumbnails)
         self.customizing_handle_thread.success.connect(self.playlist_ready)
         self.customizing_handle_thread.start()
 
     def playlist_ready(self):
         self.playlist_customize_b.setEnabled(True)
         self.playlist_download_b.setEnabled(True)
-        self.statusBar().showMessage(f"{self.current_playlist['playlist_title']} is ready to download")
+        self.statusBar().showMessage(
+            f"{self.current_playlist['playlist_title']} is ready to download")
 
     def collect_playlist_videos_thumbnails(self):
-        self.playlist_thumbnails_handle_thread = PlaylistThumbnailsHandle(self.current_playlist["download_data"])
+        self.playlist_thumbnails_handle_thread = PlaylistThumbnailsHandle(
+            self.current_playlist["download_data"])
         self.playlist_thumbnails_handle_thread.start()
 
     def prepare_video_templates(self):
@@ -385,14 +422,15 @@ class MainWindow(QMainWindow):
                     download_data[video]["video_data"]
                 )
                 download_data[video]["item"] = PlaylistItemTemplate(
-                video_data=download_data[video]["video_data"],
-                order=index
-            )
+                    video_data=download_data[video]["video_data"],
+                    order=index
+                )
             self.customize_window = CustomizingWindow(
                 self.current_playlist["playlist_title"],
                 download_data,
             )
-            self.customize_window.playlist_custom_data.connect(self.receive_custom_download_data)
+            self.customize_window.playlist_custom_data.connect(
+                self.receive_custom_download_data)
         except KeyError:
             return
 
@@ -422,7 +460,8 @@ class MainWindow(QMainWindow):
         # collect the data selected for the playlist
         save_location = self.playlist_save_location.text()
         if save_location == "":
-            self.show_message(QMessageBox.Warning, "Choose save location", False)
+            self.show_message(QMessageBox.Warning,
+                              "Choose save location", False)
             return
         customized = self.current_playlist["customized"]
         download_data = {
@@ -433,8 +472,10 @@ class MainWindow(QMainWindow):
             "videos_data": self.current_playlist["download_data"]
         }
         if not customized:
-            download_data["stream_type"] = "video" if self.playlist_videos_radio.isChecked() else "audio"
-            download_data["quality"] = "normal" if self.playlist_quality.currentIndex() == 0 else "low"
+            download_data["stream_type"] = "video" if self.playlist_videos_radio.isChecked(
+            ) else "audio"
+            download_data["quality"] = "normal" if self.playlist_quality.currentIndex(
+            ) == 0 else "low"
 
         self.playlist_download_window = PlaylistDownloadWindow(download_data=download_data,
                                                                customized=customized,

@@ -47,8 +47,8 @@ class VideoHandleThread(QThread):
         except (URLError, IncompleteRead):
             self.error.emit("critical", "Connection Error!")
         except Exception as e:
-            print(e)
-            self.error.emit("critical", "Unexpected Error!")
+            print('aobject handlerss', e)  # debugging
+            self.error.emit("critical", str(e))
 
         if self.success:
             self.display_video_data.emit()
@@ -72,7 +72,8 @@ class SubtitleHandleThread(QThread):
     def run(self):
         try:
             subtitle = Subtitle(self.video_id)
-            self.parent_.current_video["subtitles_display"] = subtitle.get_subtitles()
+            self.parent_.current_video["subtitles_display"] = subtitle.get_subtitles(
+            )
             self.parent_.current_video["subtitle_object"] = subtitle
             self.success = True
         except Exception as e:
@@ -118,7 +119,8 @@ class PlaylistHandleThread(QThread):
         except KeyError:
             self.error.emit("critical", "Invalid URL!", True, True)
         except URLError:
-            self.error.emit("critical", "Check your internet connection!", True, True)
+            self.error.emit(
+                "critical", "Check your internet connection!", True, True)
         except Exception as e:
             print(e)
             self.error.emit("critical", "Unexpected Error!", True, True)
@@ -141,19 +143,23 @@ class PlaylistHandleThread(QThread):
                           "normal audio": audio[-1].filesize / length,
                           "low audio": audio[-2].filesize / length if qualities["audio"] > 1 else 0
                           }
-            durations = [video.length for video in self.parent_.current_playlist["playlist"].videos]
+            durations = [
+                video.length for video in self.parent_.current_playlist["playlist"].videos]
             self.parent_.current_playlist["size"] = True
             self.parent_.current_playlist["playlist_mul_factor"] = mul_factor
             self.parent_.current_playlist["playlist_videos_durations"] = durations
             self.success = True
 
         except KeyError:
-            self.error.emit("critical", "Invalid URL!\nCouldn't calculate size", False, True)
+            self.error.emit(
+                "critical", "Invalid URL!\nCouldn't calculate size", False, True)
         except URLError:
-            self.error.emit("critical", "Connection Error!\nCouldn't calculate size", False, True)
+            self.error.emit(
+                "critical", "Connection Error!\nCouldn't calculate size", False, True)
         except Exception as e:
             print(e)
-            self.error.emit("critical", "Unexpected Error!\nCouldn't calculate size", False, True)
+            self.error.emit(
+                "critical", "Unexpected Error!\nCouldn't calculate size", False, True)
 
         if self.success:
             self.display_playlist_size.emit()
@@ -200,9 +206,11 @@ class PlaylistThumbnailsHandle(QThread):
                 video["template"].img.setPixmap(image.scaledToWidth(130))
                 video["item"].img.setPixmap(image.scaledToWidth(130))
             else:
-                video["template"].img.setStyleSheet(video["template"].img.styleSheet() + "color: #f32013;")
+                video["template"].img.setStyleSheet(
+                    video["template"].img.styleSheet() + "color: #f32013;")
                 video["template"].img.setText("Failed!")
-                video["item"].img.setStyleSheet(video["template"].img.styleSheet() + "color: #f32013;")
+                video["item"].img.setStyleSheet(
+                    video["template"].img.styleSheet() + "color: #f32013;")
                 video["item"].img.setText("Failed!")
 
 
@@ -279,7 +287,7 @@ class DownloadSubtitleHandleThread(QThread):
 
 class VideoDownloadHandleThread(QThread):
     on_download_start = pyqtSignal()
-    on_download_finish = pyqtSignal()
+    on_download_finish = pyqtSignal()  
     on_error = pyqtSignal()
     download_stat = pyqtSignal(dict)
 
@@ -299,15 +307,14 @@ class VideoDownloadHandleThread(QThread):
         self.analyzer.finished.connect(self.stop)
         self.finished.connect(self.analyzer.quit)
         self.finished.connect(self.analyzer.wait)
+        self.analyzer.completed.connect(self.on_download_finish.emit)  # Connected the completed signal
 
     def run(self) -> None:
         self.stream.download_state = True
         try:
             self.stream.download(
                 output_path=self.output_path,
-                filename=self.filename,
-                start_signal=self.on_download_start,
-                stop_signal=self.on_download_finish
+                filename=self.filename
             )
             self.finished.emit()
         except Exception as e:
@@ -336,7 +343,8 @@ class DownloadAnalyzerHandle(QThread):
             current_size = getsize(self.filename)
             rate = (current_size - self.lastSize) / delay
             estimated_size = self.length - current_size
-            estimated_time = standard_time(estimated_size / rate) if rate else "N/A"
+            estimated_time = standard_time(
+                estimated_size / rate) if rate else "N/A"
             difference = current_size - self.lastSize
             self.lastSize = current_size
             progress = int((current_size / self.length) * 100)
@@ -348,11 +356,11 @@ class DownloadAnalyzerHandle(QThread):
                 "progress": progress,
                 "difference": difference
             }
-            # print(data)
+            print("Download Analyzer Data:", data)
             if self.callback:
                 self.callback(data)
             sleep(delay)
-            if not progress < 100:
+            if current_size >= self.length:
                 self.completed.emit()
                 break
         self.finished.emit()

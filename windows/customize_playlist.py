@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QComboBox
-from PyQt5uic import loadUi
+from PyQt5.uic import loadUi
 from PyQt5.QtGui import QIcon
 
 

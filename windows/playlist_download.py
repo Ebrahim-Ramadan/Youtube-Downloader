@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QComboBox, QPushButton
-from PyQt5uic import loadUi
+from PyQt5.uic import loadUi
 from PyQt5.QtGui import QCloseEvent, QIcon
 
 from lib.load_piximage import load_piximage_from_url

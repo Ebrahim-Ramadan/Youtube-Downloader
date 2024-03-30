@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QComboBox
-from PyQt5uic import loadUi
+from PyQt5.uic import loadUi
 
 # Other modules
 from threading import Thread

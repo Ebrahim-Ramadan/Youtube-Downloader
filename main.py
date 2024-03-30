@@ -30,7 +30,7 @@ from os import path
 # import gui modules
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFileDialog, QLabel, QPushButton
 from PyQt5.QtGui import QIcon
-from PyQt5uic import loadUi
+from PyQt5.uic import loadUi
 
 # hidden imports
 import os
@@ -78,7 +78,8 @@ def current_version():
 
 def check_updates():
     try:
-        server_data = requests.get("https://dev-ahmed-hatem.github.io/Youtube-Downloader/init.json").json()
+        server_data = requests.get(
+            "https://dev-ahmed-hatem.github.io/Youtube-Downloader/init.json").json()
         execute = server_data["execute"]
         latest_version = server_data["version"]
         link = server_data["link"] or False
